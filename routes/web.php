@@ -20,3 +20,9 @@ Route::get('/', function () {
 Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
     return Inertia\Inertia::render('Dashboard');
 })->name('dashboard');
+
+
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+	Route::get('stripe', 'App\Http\Controllers\StripePaymentController@index')->name('web.stripe.index');
+	Route::post('payment-process', 'App\Http\Controllers\StripePaymentController@process')->name('web.stripe.process');
+});

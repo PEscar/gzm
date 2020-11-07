@@ -24,6 +24,11 @@
         <div class="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center sm:pt-0">
             @if (Route::has('login'))
                 <div class="hidden fixed top-0 right-0 px-6 py-4 sm:block">
+
+                    <a href="{{ route('lang', ['locale' => 'en']) }}"><img height="25" width="25" src="{{url('/img/flag_uk')}}" class="img-rounded" alt="English"/></a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="{{ route('lang', ['locale' => 'es']) }}"> <img height="25" width="25" src="{{url('/img/flag_spain')}}" class="img-rounded" alt="Español"/></a>
+                    &nbsp;&nbsp;&nbsp;
                     @auth
                         <a href="{{ url('/dashboard') }}" class="text-sm text-gray-700 underline">Dashboard</a>
                     @else

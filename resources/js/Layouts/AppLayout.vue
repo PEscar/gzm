@@ -22,6 +22,15 @@
 
                     <!-- Settings Dropdown -->
                     <div class="hidden sm:flex sm:items-center sm:ml-6">
+
+                        <jet-nav-link :href="route('lang', 'en')" :active="$page.locale == 'en'">
+                            <img class="h-8 w-8 rounded-full object-cover" :src="base_url + 'img/flag_uk'" alt="English" />
+                        </jet-nav-link>
+
+                        <jet-nav-link :href="route('lang', 'es')" :active="$page.locale == 'es'">
+                            <img class="h-8 w-8 rounded-full object-cover" :src="base_url + 'img/flag_spain'" alt="Español" />
+                        </jet-nav-link>
+
                         <div class="ml-3 relative">
                             <jet-dropdown align="right" width="48">
                                 <template #trigger>
@@ -229,6 +238,7 @@
         data() {
             return {
                 showingNavigationDropdown: false,
+                base_url: route('base'),
             }
         },
 

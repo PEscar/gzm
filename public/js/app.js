@@ -3044,6 +3044,15 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -3059,7 +3068,8 @@ __webpack_require__.r(__webpack_exports__);
   },
   data: function data() {
     return {
-      showingNavigationDropdown: false
+      showingNavigationDropdown: false,
+      base_url: route('base')
     };
   },
   methods: {
@@ -24654,6 +24664,44 @@ var render = function() {
               { staticClass: "hidden sm:flex sm:items-center sm:ml-6" },
               [
                 _c(
+                  "jet-nav-link",
+                  {
+                    attrs: {
+                      href: _vm.route("lang", "en"),
+                      active: _vm.$page.locale == "en"
+                    }
+                  },
+                  [
+                    _c("img", {
+                      staticClass: "h-8 w-8 rounded-full object-cover",
+                      attrs: {
+                        src: _vm.base_url + "img/flag_uk",
+                        alt: "English"
+                      }
+                    })
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "jet-nav-link",
+                  {
+                    attrs: {
+                      href: _vm.route("lang", "es"),
+                      active: _vm.$page.locale == "es"
+                    }
+                  },
+                  [
+                    _c("img", {
+                      staticClass: "h-8 w-8 rounded-full object-cover",
+                      attrs: {
+                        src: _vm.base_url + "img/flag_spain",
+                        alt: "Español"
+                      }
+                    })
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
                   "div",
                   { staticClass: "ml-3 relative" },
                   [
@@ -24945,7 +24993,8 @@ var render = function() {
                   ],
                   1
                 )
-              ]
+              ],
+              1
             ),
             _vm._v(" "),
             _c("div", { staticClass: "-mr-2 flex items-center sm:hidden" }, [

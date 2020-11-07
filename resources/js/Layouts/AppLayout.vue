@@ -23,13 +23,9 @@
                     <!-- Settings Dropdown -->
                     <div class="hidden sm:flex sm:items-center sm:ml-6">
 
-                        <jet-nav-link :href="route('lang', 'en')" :active="$page.locale == 'en'">
-                            <img class="h-8 w-8 rounded-full object-cover" :src="base_url + 'img/flag_uk'" alt="English" />
-                        </jet-nav-link>
-
-                        <jet-nav-link :href="route('lang', 'es')" :active="$page.locale == 'es'">
-                            <img class="h-8 w-8 rounded-full object-cover" :src="base_url + 'img/flag_spain'" alt="Español" />
-                        </jet-nav-link>
+                        <a href="#" @click="setLang('en')"><img class="h-8 w-8 rounded-full object-cover" :src="base_url + 'img/flag_uk'" alt="English" /></a>
+                        &nbsp;&nbsp;
+                        <a href="#" @click="setLang('es')"><img class="h-8 w-8 rounded-full object-cover" :src="base_url + 'img/flag_spain'" alt="Español" /></a>
 
                         <div class="ml-3 relative">
                             <jet-dropdown align="right" width="48">
@@ -256,6 +252,12 @@
                     window.location = '/';
                 })
             },
+
+            setLang(lang) {
+                axios.get(route('lang', lang).url()).then(response => {
+                    window.location.reload();
+                })
+            }
         }
     }
 </script>

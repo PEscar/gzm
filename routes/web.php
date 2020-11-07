@@ -23,5 +23,5 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
 
 Route::get('locale/{locale}', function ($locale){
     Session::put('locale', $locale);
-    return redirect()->back();
+    return true;
 })->name('lang');

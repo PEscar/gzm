@@ -3049,10 +3049,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
 
 
 
@@ -3083,6 +3079,11 @@ __webpack_require__.r(__webpack_exports__);
     logout: function logout() {
       axios.post(route('logout').url()).then(function (response) {
         window.location = '/';
+      });
+    },
+    setLang: function setLang(lang) {
+      axios.get(route('lang', lang).url()).then(function (response) {
+        window.location.reload();
       });
     }
   }
@@ -21929,6 +21930,340 @@ function cloneDeep(object) {
 
 /***/ }),
 
+/***/ "./node_modules/matice/dist/Localization/MaticeLocalizationConfig.js":
+/*!***************************************************************************!*\
+  !*** ./node_modules/matice/dist/Localization/MaticeLocalizationConfig.js ***!
+  \***************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var MaticeLocalizationConfig = /** @class */ (function () {
+    function MaticeLocalizationConfig() {
+    }
+    return MaticeLocalizationConfig;
+}());
+exports.default = MaticeLocalizationConfig;
+//# sourceMappingURL=MaticeLocalizationConfig.js.map
+
+/***/ }),
+
+/***/ "./node_modules/matice/dist/Localization/core.js":
+/*!*******************************************************!*\
+  !*** ./node_modules/matice/dist/Localization/core.js ***!
+  \*******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.locales = exports.getLocale = exports.setLocale = exports.transChoice = exports.__ = exports.trans = void 0;
+var MaticeLocalizationConfig_1 = __importDefault(__webpack_require__(/*! ./MaticeLocalizationConfig */ "./node_modules/matice/dist/Localization/MaticeLocalizationConfig.js"));
+// const assert = require("assert");
+function assert(value, message) {
+    if (!value)
+        throw message;
+}
+var Localization = /** @class */ (function () {
+    function Localization() {
+        // @ts-ignore
+        MaticeLocalizationConfig_1.default.locale = Matice.locale;
+        // @ts-ignore
+        MaticeLocalizationConfig_1.default.fallbackLocale = Matice.fallbackLocale;
+        // @ts-ignore
+        MaticeLocalizationConfig_1.default.locales = Object.keys(Matice.translations);
+    }
+    Object.defineProperty(Localization, "instance", {
+        get: function () {
+            if (Localization._instance === undefined) {
+                Localization._instance = new Localization();
+            }
+            return Localization._instance;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    /**
+     * Update the locale
+     * @param locale
+     */
+    Localization.prototype.setLocale = function (locale) {
+        MaticeLocalizationConfig_1.default.locale = locale;
+    };
+    /**
+     * Retrieve the current locale
+     */
+    Localization.prototype.getLocale = function () {
+        return MaticeLocalizationConfig_1.default.locale;
+    };
+    /**
+     * Return a listing of the locales.
+     */
+    Localization.prototype.locales = function () {
+        return MaticeLocalizationConfig_1.default.locales;
+    };
+    /**
+     * Get the translations of [locale].
+     * @param locale
+     */
+    Localization.prototype.translations = function (locale) {
+        if (locale === void 0) { locale = MaticeLocalizationConfig_1.default.locale; }
+        // Matice is added with the directive "@translation"
+        // @ts-ignore
+        var translations = Matice.translations;
+        if (translations === undefined) {
+            console.warn('Matice Translation not found. For Matice-js to work, make sure to add @translations' +
+                ' blade directive in your view. Usually insert the directive in app.layout.');
+            translations = [];
+        }
+        else {
+            translations = translations[locale];
+            if (translations === undefined) {
+                throw "Locale [" + locale + "] does not exist.";
+            }
+        }
+        return translations;
+    };
+    /**
+     * Translate the given key.
+     */
+    Localization.prototype.trans = function (key, silentNotFoundError, options) {
+        if (options === void 0) { options = { args: {}, pluralize: false }; }
+        var args = options.args || {};
+        var sentence = this.findSentence(key, silentNotFoundError);
+        if (options.pluralize) {
+            assert(typeof args.count === 'number', 'On pluralization, the argument `count` must be a number and non-null.');
+            sentence = this.pluralize(sentence, args.count);
+        }
+        // Replace the variables in sentence.
+        Object.keys(args).forEach(function (key) {
+            sentence = sentence.replace(new RegExp(':' + key, 'g'), args[key]);
+        });
+        return sentence;
+    };
+    // noinspection JSMethodCanBeStatic
+    /**
+     * Manage sentence pluralization the sentence. Return the good sentence depending of the `count` argument.
+     */
+    Localization.prototype.pluralize = function (sentence, count) {
+        var parts = sentence.split('|');
+        // Make sure the pieces are always three in length for ease of calculation.
+        // We fill the empty indexes with a direct preceding index.
+        // We fill the empty parts by the last part.
+        if (parts.length >= 3)
+            parts = [parts[0], parts[1], parts[2]];
+        else if (parts.length === 2)
+            parts = [parts[0], parts[1], parts[1]];
+        else
+            parts = [parts[0], parts[0], parts[0]];
+        // Manage multiple number range.
+        var ranges = [];
+        var pattern = /^(\[(\s*\d+\s*)+,(\s*(\d+|\*)\s*)])|({\s*\d+\s*})/;
+        for (var i = 0; i < parts.length; i++) {
+            var part = parts[i];
+            var matched = part.match(pattern);
+            if (matched === null) {
+                // If range is found, use the part index as the range.
+                parts[i] = "{" + i + "} " + parts[i];
+                matched = [parts[i]];
+            }
+            // Remove unwanted characters: "[",  "]",  "{",  "}"
+            var replaced = matched[0].replace(/[\[{\]}]/, '');
+            // Split the matched to have an array of string number
+            var rangeNumbers = replaced.split(',').map(function (m) {
+                var parsed = Number.parseInt(m.trim());
+                // If parsed is a star(*) which mean infinity, just replace by count + 1
+                return Number.isInteger(parsed) ? parsed : count + 1;
+            });
+            // Lets make sure to remove the range symbols in the parts.
+            parts[i] = part = part.replace(pattern, '');
+            ranges.push(rangeNumbers.length == 1
+                ? { min: rangeNumbers[0], max: rangeNumbers[0], part: part }
+                : { min: rangeNumbers[0], max: rangeNumbers[1], part: part });
+        }
+        var foundInRange = false;
+        // Compare the part with the range to choose the pluralization.
+        // -------  ------
+        // Return the first part if count is zero or negative
+        if (count <= 0) {
+            sentence = parts[0];
+        }
+        else {
+            for (var _i = 0, ranges_1 = ranges; _i < ranges_1.length; _i++) {
+                var range = ranges_1[_i];
+                // If count is in the range, return the corresponding text part.
+                if (count >= range.min && count <= range.max) {
+                    // count is in the range.
+                    sentence = range.part;
+                    foundInRange = true;
+                    break;
+                }
+            }
+            if (!foundInRange) {
+                // If count is not in the range, we use the last part.
+                sentence = parts[parts.length - 1];
+            }
+        }
+        // if (count > 1) sentence = parts[2]
+        // else if (count === 1) sentence = parts[1]
+        // else sentence = parts[0]
+        return sentence;
+    };
+    /**
+     * Find the sentence using associated with the [key].
+     * @param key
+     * @param silentNotFoundError
+     * @param locale
+     * @param splitKey
+     * @returns {string}
+     * @private
+     */
+    Localization.prototype.findSentence = function (key, silentNotFoundError, locale, splitKey) {
+        if (locale === void 0) { locale = MaticeLocalizationConfig_1.default.locale; }
+        if (splitKey === void 0) { splitKey = false; }
+        var translations = this.translations(locale);
+        // At first [link] is a [Map<String, dynamic>] but at the end, it can be a [String],
+        // the sentences.
+        var link = translations;
+        var parts = splitKey ? key.split('.') : [key];
+        for (var _i = 0, parts_1 = parts; _i < parts_1.length; _i++) {
+            var part = parts_1[_i];
+            // Get the new json until we fall on the last key of
+            // the array which should point to a String.
+            if (typeof link === 'object' && part in link) {
+                // Make sure the key exist.
+                link = link[part];
+            }
+            else {
+                // If key not found, try to split it using dot.
+                if (!splitKey) {
+                    return this.findSentence(key, silentNotFoundError, locale, true);
+                }
+                // If key not found, try with the fallback locale.
+                if (locale !== MaticeLocalizationConfig_1.default.fallbackLocale) {
+                    return this.findSentence(key, silentNotFoundError, MaticeLocalizationConfig_1.default.fallbackLocale);
+                }
+                // If the key not found and the silent mode is on, return the key,
+                if (silentNotFoundError)
+                    return key;
+                // If key not found and the silent mode is off, throw error,
+                throw "Translation key not found : \"" + key + "\" -> Exactly \"" + part + "\" not found";
+            }
+        }
+        key.split('.').forEach(function (_key) {
+        });
+        return link.toString();
+    };
+    return Localization;
+}());
+/*
+|
+| ----------------------------------
+| Exports
+| ----------------------------------
+|
+*/
+/**
+ * Translate the given message.
+ * @param key
+ * @param options
+ */
+function trans(key, options) {
+    if (options === void 0) { options = { args: {}, pluralize: false }; }
+    return Localization.instance.trans(key, false, options);
+}
+exports.trans = trans;
+/**
+ * Translate the given message with the particularity to return the key if
+ * the sentence was not found, instead of throwing an exception.
+ * @param key
+ * @param options
+ */
+function __(key, options) {
+    if (options === void 0) { options = { args: {}, pluralize: false }; }
+    return Localization.instance.trans(key, true, options);
+}
+exports.__ = __;
+/**
+ * An helper to the trans function but with the pluralization mode activated by default.
+ * @param key
+ * @param count
+ * @param args
+ */
+function transChoice(key, count, args) {
+    return trans(key, { args: __assign(__assign({}, args), { count: count }), pluralize: true });
+}
+exports.transChoice = transChoice;
+/**
+ * Update the locale
+ * @param locale
+ */
+function setLocale(locale) {
+    Localization.instance.setLocale(locale);
+}
+exports.setLocale = setLocale;
+/**
+ * Retrieve the current locale
+ */
+function getLocale() {
+    return Localization.instance.getLocale();
+}
+exports.getLocale = getLocale;
+/**
+ * Return a listing of the locales.
+ */
+function locales() {
+    return Localization.instance.locales();
+}
+exports.locales = locales;
+//# sourceMappingURL=core.js.map
+
+/***/ }),
+
+/***/ "./node_modules/matice/dist/matice.js":
+/*!********************************************!*\
+  !*** ./node_modules/matice/dist/matice.js ***!
+  \********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MaticeLocalizationConfig = exports.transChoice = exports.locales = exports.getLocale = exports.setLocale = exports.__ = exports.trans = void 0;
+var core_1 = __webpack_require__(/*! ./Localization/core */ "./node_modules/matice/dist/Localization/core.js");
+Object.defineProperty(exports, "trans", { enumerable: true, get: function () { return core_1.trans; } });
+Object.defineProperty(exports, "__", { enumerable: true, get: function () { return core_1.__; } });
+Object.defineProperty(exports, "setLocale", { enumerable: true, get: function () { return core_1.setLocale; } });
+Object.defineProperty(exports, "getLocale", { enumerable: true, get: function () { return core_1.getLocale; } });
+Object.defineProperty(exports, "locales", { enumerable: true, get: function () { return core_1.locales; } });
+Object.defineProperty(exports, "transChoice", { enumerable: true, get: function () { return core_1.transChoice; } });
+var MaticeLocalizationConfig_1 = __webpack_require__(/*! ./Localization/MaticeLocalizationConfig */ "./node_modules/matice/dist/Localization/MaticeLocalizationConfig.js");
+Object.defineProperty(exports, "MaticeLocalizationConfig", { enumerable: true, get: function () { return __importDefault(MaticeLocalizationConfig_1).default; } });
+//# sourceMappingURL=matice.js.map
+
+/***/ }),
+
 /***/ "./node_modules/portal-vue/dist/portal-vue.common.js":
 /*!***********************************************************!*\
   !*** ./node_modules/portal-vue/dist/portal-vue.common.js ***!
@@ -24664,11 +24999,13 @@ var render = function() {
               { staticClass: "hidden sm:flex sm:items-center sm:ml-6" },
               [
                 _c(
-                  "jet-nav-link",
+                  "a",
                   {
-                    attrs: {
-                      href: _vm.route("lang", "en"),
-                      active: _vm.$page.locale == "en"
+                    attrs: { href: "#" },
+                    on: {
+                      click: function($event) {
+                        return _vm.setLang("en")
+                      }
                     }
                   },
                   [
@@ -24681,13 +25018,15 @@ var render = function() {
                     })
                   ]
                 ),
-                _vm._v(" "),
+                _vm._v("\n                      \n                    "),
                 _c(
-                  "jet-nav-link",
+                  "a",
                   {
-                    attrs: {
-                      href: _vm.route("lang", "es"),
-                      active: _vm.$page.locale == "es"
+                    attrs: { href: "#" },
+                    on: {
+                      click: function($event) {
+                        return _vm.setLang("es")
+                      }
                     }
                   },
                   [
@@ -24993,8 +25332,7 @@ var render = function() {
                   ],
                   1
                 )
-              ],
-              1
+              ]
             ),
             _vm._v(" "),
             _c("div", { staticClass: "-mr-2 flex items-center sm:hidden" }, [
@@ -41717,12 +42055,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var laravel_jetstream__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(laravel_jetstream__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var portal_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! portal-vue */ "./node_modules/portal-vue/dist/portal-vue.common.js");
 /* harmony import */ var portal_vue__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(portal_vue__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var matice__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! matice */ "./node_modules/matice/dist/matice.js");
+/* harmony import */ var matice__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(matice__WEBPACK_IMPORTED_MODULE_4__);
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
 
 
 
 
+
+vue__WEBPACK_IMPORTED_MODULE_0___default.a.mixin({
+  methods: {
+    $trans: matice__WEBPACK_IMPORTED_MODULE_4__["trans"]
+  }
+});
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.mixin({
   methods: {
     route: route
